@@ -1,6 +1,6 @@
 import argparse
 import sys
-from second_step import run_second_step
+from third_step import run_third_step
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Консольный индексатор папок")
@@ -9,7 +9,7 @@ def parse_args():
 
 def main():
     args = parse_args()
-    run_second_step(args.path)
+    run_third_step(args.path)
 
 if __name__ == "__main__":
     main()
