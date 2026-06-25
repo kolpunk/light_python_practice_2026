@@ -30,7 +30,7 @@ def scan_directory(path):
             except (PermissionError, FileNotFoundError):
                 pass
             except Exception as e:
-                pass
+                print(f"ВНИМАНИЕ! Ошибка у файла {filepath}: {e}")
 
     return files_metadata
 
