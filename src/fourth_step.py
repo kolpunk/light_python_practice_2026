@@ -1,33 +1,28 @@
 import os
 from first_step import validate_path
 from third_step import compute_file_hash
+from utils import get_all_files_recursive
 
-
-def scan_for_comparison(base_path):
-    """Возвращает словарь {относительный_путь: хэш} для всей папки."""
+def scan_for_comparison(base_path, extension=None):
     file_hashes = {}
-    for root, dirs, files in os.walk(base_path):
-        for filename in files:
-            filepath = os.path.join(root, filename)
-            rel_path = os.path.relpath(filepath, base_path)
-            try:
-                file_hashes[rel_path] = compute_file_hash(filepath)
-            except (PermissionError, FileNotFoundError):
-                pass
+    all_files = get_all_files_recursive(base_path, extension)
+    for filepath in all_files:
+        rel_path = os.path.relpath(filepath, base_path)
+        try:
+            file_hashes[rel_path] = compute_file_hash(filepath)
+        except (PermissionError, FileNotFoundError):
+            pass
     return file_hashes
 
-
-def run_fourth_step(source_path, backup_path):
-    """Этап 4: сравнение исходной папки с бэкапом."""
+def run_fourth_step(source_path, backup_path, extension=None):
     is_valid1, msg1 = validate_path(source_path)
     is_valid2, msg2 = validate_path(backup_path)
-
     if not is_valid1 or not is_valid2:
         print(f"[ОШИБКА] {msg1 if not is_valid1 else msg2}")
         return
 
-    source_files = scan_for_comparison(source_path)
-    backup_files = scan_for_comparison(backup_path)
+    source_files = scan_for_comparison(source_path, extension)
+    backup_files = scan_for_comparison(backup_path, extension)
 
     source_keys = set(source_files.keys())
     backup_keys = set(backup_files.keys())

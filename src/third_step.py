@@ -3,9 +3,7 @@ import hashlib
 from first_step import validate_path
 from second_step import scan_directory
 
-
 def compute_file_hash(filepath, chunk_size=8192):
-    """Считает SHA-256 хэш содержимого файла."""
     sha256 = hashlib.sha256()
     with open(filepath, "rb") as f:
         while True:
@@ -15,11 +13,8 @@ def compute_file_hash(filepath, chunk_size=8192):
             sha256.update(chunk)
     return sha256.hexdigest()
 
-
-def find_duplicates(path):
-    """Обходит папку и группирует файлы по хэшу содержимого."""
-    metadata_list = scan_directory(path)
-
+def find_duplicates(path, extension=None):
+    metadata_list = scan_directory(path, extension)   # передаём фильтр
     hash_to_files = {}
     for meta in metadata_list:
         filepath = meta["path"]
@@ -30,23 +25,17 @@ def find_duplicates(path):
             hash_to_files[file_hash].append(filepath)
         except (PermissionError, FileNotFoundError):
             pass
-
     return hash_to_files
 
-
-def run_third_step(path):
-    """Этап 3: поиск дубликатов."""
+def run_third_step(path, extension=None):
     is_valid, message = validate_path(path)
     if not is_valid:
         print(f"[ОШИБКА] {message}")
         return
-
-    hash_to_files = find_duplicates(path)
+    hash_to_files = find_duplicates(path, extension)
     duplicates = {h: paths for h, paths in hash_to_files.items() if len(paths) >= 2}
-
     print(f"Уникальных файлов: {len(hash_to_files)}")
     print(f"Групп дубликатов: {len(duplicates)}\n")
-
     if not duplicates:
         print("Дубликатов не найдено.\n")
     else:
@@ -55,5 +44,4 @@ def run_third_step(path):
             for p in paths:
                 print(f"  - {p}")
             print()
-
     return hash_to_files
